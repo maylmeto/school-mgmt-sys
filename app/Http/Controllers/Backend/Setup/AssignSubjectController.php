@@ -46,4 +46,52 @@ class AssignSubjectController extends Controller
       return Redirect()->route('assign.subject.view')->with($notification);
 
       }
+
+      public function EditAssignSubject($class_id){
+        $data['editData'] = AssignSubject::where('class_id', $class_id)->orderBy('subject_id','asc')->get();
+        // dd($data['editData']->toArray());
+        $data['subjects'] = SchoolSubject::all();
+        $data['classes'] = StudentClass::all();
+        return view('backend.setup.assign_subject.edit_assign_subject', $data);
+      }
+
+      public function UpdateAssignSubject(Request $request, $class_id){
+        if($request->subject_id == NULL){
+          // dd('Error');
+          $notification = array(
+        'message' => 'Sorry! You didn\'t select any subject yet.',
+        'alert-type' => 'error'
+      );
+      return redirect()->route('assign.subject.edit', $class_id)->with($notification);
+
+        }else{
+          // dd('ok');
+          $countClass = count($request->subject_id);
+          AssignSubject::where('class_id', $class_id)->delete();
+          for($i=0; $i < $countClass; $i++){
+            $assign_subject = new AssignSubject();
+            $assign_subject->class_id = $request->class_id;
+            $assign_subject->subject_id = $request->subject_id[$i];
+            $assign_subject->full_mark = $request->full_mark[$i];
+            $assign_subject->pass_mark = $request->pass_mark[$i];
+            $assign_subject->subjective_mark = $request->subjective_mark[$i];
+
+            $assign_subject->save();
+          
+        }
+        }
+
+        $notification = array(
+        'message' => 'Assign Subject updated successfully!',
+        'alert-type' => 'success'
+      );
+      return redirect()->route('assign.subject.view')->with($notification);
+      }
+
+      public function DetailsAssignSubject($class_id){
+        $data['detailsData'] = AssignSubject::where('class_id', $class_id)->orderBy('subject_id','asc')->get();
+
+        return view('backend.setup.assign_subject.details_assign_subject', $data);
+
+      }
 }
