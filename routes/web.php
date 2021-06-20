@@ -14,6 +14,7 @@ use App\Http\Controllers\Backend\Setup\ExamTypeController;
 use App\Http\Controllers\Backend\Setup\SchoolSubjectController;
 use App\Http\Controllers\Backend\Setup\AssignSubjectController;
 use App\Http\Controllers\Backend\Setup\DesignationController;
+use App\Http\Controllers\Backend\Student\StudentRegController;
 
 
 /*
@@ -145,6 +146,14 @@ Route::post('designation/store', [DesignationController::class, 'DesignationStor
 Route::get('designation/edit/{id}', [DesignationController::class, 'DesignationEdit'])->name('designation.edit');
 Route::post('designatin/update/{id}', [DesignationController::class, 'DesignationUpdate'])->name('update.designation');
 Route::get('designation/delete/{id}', [DesignationController::class, 'DesignationDelete'])->name('designation.delete');
+
+
+  });
+
+  // Student Management routes
+Route::prefix('students')->group(function(){
+
+Route::get('/reg/view', [StudentRegController::class, 'StudentRegView'])->name('student.registration.view');
 
 
   });
