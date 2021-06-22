@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend\Student;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\AssignStudent;
+use App\Models\AssignSubject;
 use App\Models\User;
 use App\Models\DiscountStudent;
 use App\Models\StudentClass;
@@ -135,7 +136,20 @@ class StudentRegController extends Controller
     return redirect()->route('student.registration.view')->with($notification);
   } //end method
 
+// student registration edit
+ public function StudentRegEdit($student_id){
 
+    $data['years'] = StudentYear::all();
+    $data['classes'] = StudentClass::all();
+    $data['groups'] = StudentGroup::all();
+    $data['shifts'] = StudentShift::all();
+
+    $data['editData'] =AssignStudent::with(['student','discount'])->where('student_id', $student_id)->first();
+    // dd($data['editData']->toArray());
+
+    return view('backend.student.student_reg.student_edit',$data);
+
+ }
 
 
 }
