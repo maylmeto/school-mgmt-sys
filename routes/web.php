@@ -158,6 +158,9 @@ Route::get('/reg/add', [StudentRegController::class, 'StudentRegAdd'])->name('st
 Route::post('/reg/store', [StudentRegController::class, 'StudentRegStore'])->name('store.student.registration');
 Route::get('/year/class/wise', [StudentRegController::class, 'StudentClasYearWise'])->name('student.year.class.wise');
 Route::get('/reg/edit/{student_id}', [StudentRegController::class, 'StudentRegEdit'])->name('student.registration.edit');
+Route::post('/reg/update/{student_id}', [StudentRegController::class, 'StudentRegUpdate'])->name('update.student.registration');
+Route::get('/reg/promotion/{student_id}', [StudentRegController::class, 'StudentRegPromotion'])->name('student.registration.promotion');
+Route::post('/reg/update/promotion/{student_id}', [StudentRegController::class, 'StudentUpdatePromotion'])->name('promotion.student.registration');
 
   });
 
