@@ -23,6 +23,11 @@
 
             <input type="hidden" name="id" value="{{$editData->id}}">
 
+
+
+            
+            
+
 					  <div class="row">
 						<div class="col-12">	
 
@@ -138,6 +143,9 @@
 
                 <div class="col-md-4">
                   <div class="form-group">
+
+
+                    
                   <h5>Discount<span class="text-danger">*</span></h5>
                   <div class="controls">
                     <input type="text" name="discount"   class="form-control" required="" value="{{$editData['discount']['discount']}}">

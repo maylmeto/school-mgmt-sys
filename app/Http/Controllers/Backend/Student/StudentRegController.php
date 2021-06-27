@@ -13,80 +13,81 @@ use App\Models\StudentGroup;
 use App\Models\StudentShift;
 use App\Models\StudentYear;
 use DB;
+use PDF;
 
 class StudentRegController extends Controller
 {
-  public function StudentRegView(){
+  public function StudentRegView()
+  {
 
     $data['years'] = StudentYear::all();
     $data['classes'] = StudentClass::all();
 
     $data['year_id'] = StudentYear::orderBy('id', 'desc')->first()->id;
     $data['class_id'] = StudentClass::orderBy('id', 'desc')->first()->id;
-    
-    $data['allData'] = AssignStudent::where('year_id',$data['year_id'])->where('class_id', $data['class_id'])->get();
-    return view('backend.student.student_reg.student_view', $data);
 
+    $data['allData'] = AssignStudent::where('year_id', $data['year_id'])->where('class_id', $data['class_id'])->get();
+    return view('backend.student.student_reg.student_view', $data);
   }
 
   // search student
-  public function StudentClasYearWise(Request $request){
+  public function StudentClasYearWise(Request $request)
+  {
 
     $data['years'] = StudentYear::all();
     $data['classes'] = StudentClass::all();
 
     $data['year_id'] = $request->year_id;
     $data['class_id'] = $request->class_id;
-    
-    $data['allData'] = AssignStudent::where('year_id',$request->year_id)->where('class_id', $request->class_id)->get();
-    return view('backend.student.student_reg.student_view', $data);
 
+    $data['allData'] = AssignStudent::where('year_id', $request->year_id)->where('class_id', $request->class_id)->get();
+    return view('backend.student.student_reg.student_view', $data);
   }
 
-  public function StudentRegAdd(){
+  public function StudentRegAdd()
+  {
     $data['years'] = StudentYear::all();
     $data['classes'] = StudentClass::all();
     $data['groups'] = StudentGroup::all();
     $data['shifts'] = StudentShift::all();
 
-    return view('backend.student.student_reg.student_add',$data);
-
+    return view('backend.student.student_reg.student_add', $data);
   }
 
 
-  public function StudentRegStore(Request $request){
+  public function StudentRegStore(Request $request)
+  {
 
-    DB::transaction(function() use($request){
+    DB::transaction(function () use ($request) {
 
       $checkYear = StudentYear::find($request->year_id)->name;
-      $student = User::where('usertype','student')->orderBy('id','DESC')->first();
+      $student = User::where('usertype', 'student')->orderBy('id', 'DESC')->first();
 
-      if($student == null){
+      if ($student == null) {
         $firstReg = 0;
-        $studentId = $firstReg+1;
+        $studentId = $firstReg + 1;
 
-        if($studentId < 10){
-          $id_no = '000'.$studentId;
-        }elseif($studentId < 100){
-          $id_no = '00'.$studentId;
-        }elseif($studentId < 1000){
-          $id_no = '0'.$studentId;
+        if ($studentId < 10) {
+          $id_no = '000' . $studentId;
+        } elseif ($studentId < 100) {
+          $id_no = '00' . $studentId;
+        } elseif ($studentId < 1000) {
+          $id_no = '0' . $studentId;
         }
+      } else {
+        $student = User::where('usertype', 'Student')->orderBy('id', 'DESC')->first()->id;
+        $studentId = $student + 1;
 
-      }else{
-        $student = User::where('usertype','Student')->orderBy('id','DESC')->first()->id;
-        $studentId = $student+1;
-
-        if($studentId < 10){
-          $id_no = '000'.$studentId;
-        }elseif($studentId < 100){
-          $id_no = '00'.$studentId;
-        }elseif($studentId < 1000){
-          $id_no = '0'.$studentId;
+        if ($studentId < 10) {
+          $id_no = '000' . $studentId;
+        } elseif ($studentId < 100) {
+          $id_no = '00' . $studentId;
+        } elseif ($studentId < 1000) {
+          $id_no = '0' . $studentId;
         }
       } //end else
 
-      $final_id_no = $checkYear.$id_no;
+      $final_id_no = $checkYear . $id_no;
       $user = new User();
       $code = rand(0000, 9999);
       $user->id_no = $final_id_no;
@@ -102,13 +103,12 @@ class StudentRegController extends Controller
       $user->religion = $request->religion;
       $user->dob = date('Y-m-d', strtotime($request->dob));
 
-        if($request->file('image')){
-      $file = $request->file('image');
-      $filename = date('YmdHi').'.'.$file->getClientOriginalExtension();
-      $file->move(public_path('upload/student_images/'), $filename);
-      $user['image'] = $filename;
-
-    } 
+      if ($request->file('image')) {
+        $file = $request->file('image');
+        $filename = date('YmdHi') . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path('upload/student_images/'), $filename);
+        $user['image'] = $filename;
+      }
 
       $user->save();
 
@@ -125,7 +125,6 @@ class StudentRegController extends Controller
       $discount_student->fee_category_id = '1';
       $discount_student->discount = $request->discount;
       $discount_student->save();
-
     });
 
     $notification = array(
@@ -136,25 +135,26 @@ class StudentRegController extends Controller
     return redirect()->route('student.registration.view')->with($notification);
   } //end method
 
-// student registration edit
- public function StudentRegEdit($student_id){
+  // student registration edit
+  public function StudentRegEdit($student_id)
+  {
 
     $data['years'] = StudentYear::all();
     $data['classes'] = StudentClass::all();
     $data['groups'] = StudentGroup::all();
     $data['shifts'] = StudentShift::all();
 
-    $data['editData'] =AssignStudent::with(['student','discount'])->where('student_id', $student_id)->first();
+    $data['editData'] = AssignStudent::with(['student', 'discount'])->where('student_id', $student_id)->first();
     // dd($data['editData']->toArray());
 
-    return view('backend.student.student_reg.student_edit',$data);
+    return view('backend.student.student_reg.student_edit', $data);
+  }
 
- }
+  //  update
+  public function StudentRegUpdate(Request $request, $student_id)
+  {
 
-//  update
-public function StudentRegUpdate(Request $request, $student_id){
-
-    DB::transaction(function() use($request ,$student_id){
+    DB::transaction(function () use ($request, $student_id) {
 
       $user = User::where('id', $student_id)->first();
       $user->name = $request->name;
@@ -166,19 +166,18 @@ public function StudentRegUpdate(Request $request, $student_id){
       $user->religion = $request->religion;
       $user->dob = date('Y-m-d', strtotime($request->dob));
 
-        if($request->file('image')){
-      $file = $request->file('image');
-      @unlink(public_path('upload/user_images/'.$user->image));
-      $filename = date('YmdHi').'.'.$file->getClientOriginalExtension();
-      $file->move(public_path('upload/student_images/'), $filename);
-      $user['image'] = $filename;
-
-    } 
+      if ($request->file('image')) {
+        $file = $request->file('image');
+        @unlink(public_path('upload/user_images/' . $user->image));
+        $filename = date('YmdHi') . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path('upload/student_images/'), $filename);
+        $user['image'] = $filename;
+      }
 
       $user->save();
 
       $assign_student = AssignStudent::where('id', $request->id)->where('student_id', $student_id)->first();
-      
+
       $assign_student->year_id = $request->year_id;
       $assign_student->class_id = $request->class_id;
       $assign_student->group_id = $request->group_id;
@@ -188,7 +187,6 @@ public function StudentRegUpdate(Request $request, $student_id){
       $discount_student = DiscountStudent::where('assign_student_id', $request->id)->first();
       $discount_student->discount = $request->discount;
       $discount_student->save();
-
     });
 
     $notification = array(
@@ -199,23 +197,25 @@ public function StudentRegUpdate(Request $request, $student_id){
     return redirect()->route('student.registration.view')->with($notification);
   } //end method
 
-public function StudentRegPromotion($student_id){
+  public function StudentRegPromotion($student_id)
+  {
 
     $data['years'] = StudentYear::all();
     $data['classes'] = StudentClass::all();
     $data['groups'] = StudentGroup::all();
     $data['shifts'] = StudentShift::all();
 
-    $data['editData'] =AssignStudent::with(['student','discount'])->where('student_id', $student_id)->first();
+    $data['editData'] = AssignStudent::with(['student', 'discount'])->where('student_id', $student_id)->first();
 
-    return view('backend.student.student_reg.student_promotion',$data);
-}
+    return view('backend.student.student_reg.student_promotion', $data);
+  }
 
 
-//  promotion
-public function StudentUpdatePromotion(Request $request, $student_id){
+  //  promotion
+  public function StudentUpdatePromotion(Request $request, $student_id)
+  {
 
-    DB::transaction(function() use($request ,$student_id){
+    DB::transaction(function () use ($request, $student_id) {
 
       $user = User::where('id', $student_id)->first();
       $user->name = $request->name;
@@ -227,18 +227,17 @@ public function StudentUpdatePromotion(Request $request, $student_id){
       $user->religion = $request->religion;
       $user->dob = date('Y-m-d', strtotime($request->dob));
 
-        if($request->file('image')){
-      $file = $request->file('image');
-      @unlink(public_path('upload/user_images/'.$user->image));
-      $filename = date('YmdHi').'.'.$file->getClientOriginalExtension();
-      $file->move(public_path('upload/student_images/'), $filename);
-      $user['image'] = $filename;
-
-    } 
+      if ($request->file('image')) {
+        $file = $request->file('image');
+        @unlink(public_path('upload/user_images/' . $user->image));
+        $filename = date('YmdHi') . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path('upload/student_images/'), $filename);
+        $user['image'] = $filename;
+      }
 
       $user->save();
 
-      $assign_student = new AssignStudent(); 
+      $assign_student = new AssignStudent();
 
 
       $assign_student->student_id = $student_id;
@@ -255,7 +254,6 @@ public function StudentUpdatePromotion(Request $request, $student_id){
       $discount_student->fee_category_id = '1';
       $discount_student->discount = $request->discount;
       $discount_student->save();
-
     });
 
     $notification = array(
@@ -265,5 +263,19 @@ public function StudentUpdatePromotion(Request $request, $student_id){
 
     return redirect()->route('student.registration.view')->with($notification);
   } //end method
+
+  public function StudentRegDetails($student_id)
+  {
+
+
+
+
+    $data['details'] = AssignStudent::with(['student', 'discount'])->where('student_id', $student_id)->first();
+
+    $pdf = PDF::loadView('backend.student.student_reg.student_details_pdf', $data);
+	$pdf->SetProtection(['copy', 'print'], '', 'pass');
+	return $pdf->stream('document.pdf');
+
+  }
 
 }

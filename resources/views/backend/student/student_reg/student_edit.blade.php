@@ -127,6 +127,9 @@
 
                 <div class="col-md-4">
                   <div class="form-group">
+
+
+                    
                   <h5>Date Of Birth<span class="text-danger">*</span></h5>
                   <div class="controls">
                     <input type="date" name="dob"   class="form-control" required="" value="{{$editData['student']['dob']}}">
